@@ -26,7 +26,7 @@ system_info()
 			echo -e "[+] \e[1;4;37mKernel information:\e[00m \e[00;36m\n\t$kernelinfo\e[00m" 
 			echo -e "\n"
 		else 
-		  :
+			:
 		fi
 
 		#target hostname info
@@ -35,7 +35,7 @@ system_info()
 		 	echo -e "[+] \e[1;4;37mHostname:\e[00m \e[00;36m\n\t$hostname\e[00m" 
 		 	echo -e "\n"
 		else 
-		  :
+			:
 		fi
 	}
 
@@ -51,7 +51,7 @@ user_info()
 			done <<< $adm_users
 		    echo -e "\n"
 		else 
-		  :
+			:
 		fi
 
 		#all root accounts (uid 0)
@@ -63,7 +63,7 @@ user_info()
 			done <<< $rootaccount
 		 	echo -e "\n"	
 		else
-		  :
+			:
 		fi
 
 #		sudoers=`grep -v -e '^$' /etc/sudoers 2>/dev/null |grep -v "#" | sed 'N;s/\n/,/' 2>/dev/null`
@@ -82,21 +82,21 @@ file_system()
 		#checks to see if any hashes are stored in /etc/passwd (depreciated  *nix storage method)
 		hashesinpasswd=`grep -v '^[^:]*:[x]' /etc/passwd 2>/dev/null`
 		if [ "$hashesinpasswd" ]; then
-		  echo -e "[+] \e[1;4;37mCheck passwd file:\e[00m \e[1;31m\n\tHashes stored in this file\e[00m" 
-		  echo -e "\n"
+		  	echo -e "[+] \e[1;4;37mCheck passwd file:\e[00m \e[1;31m\n\tHashes stored in this file\e[00m" 
+		  	echo -e "\n"
 		else 
-		  echo -e "[+] \e[1;4;37mCheck passwd file:\e[00m \e[1;32m\n\tNo hashes in this file\e[00m"
-		  echo -e "\n"
+			echo -e "[+] \e[1;4;37mCheck passwd file:\e[00m \e[1;32m\n\tNo hashes in this file\e[00m"
+			echo -e "\n"
 		fi
 
 		#checks to see if the shadow file can be read by users
 		readshadow=`ls -la /etc/shadow | grep -v "\-rw-------" 2>/dev/null`
 		if [ "$readshadow" ]; then
-		  echo -e "[+] \e[1;4;37mCheck shadow file:\e[00m \e[1;31m\n\tFile readable by users\e[00m" 
-		  echo -e "\n"
+		  	echo -e "[+] \e[1;4;37mCheck shadow file:\e[00m \e[1;31m\n\tFile readable by users\e[00m" 
+		  	echo -e "\n"
 		else 
-		  echo -e "[+] \e[1;4;37mCheck passwd file: \e[00m \e[1;32m\n\tNo hashes in this file\e[00m"
-		  echo -e "\n"
+		 	 echo -e "[+] \e[1;4;37mCheck passwd file: \e[00m \e[1;32m\n\tNo hashes in this file\e[00m"
+		 	 echo -e "\n"
 		fi
 
 		#list of suid file
@@ -108,7 +108,7 @@ file_system()
 			while read -r line; do
 				echo -e " \e[00;36m\t$line\e[00m" 
 			done <<< $suid
-		  echo -e "\n"			
+		  	echo -e "\n"			
 		else 
 			echo -e "[+] \e[1;4;37mSUID files: \e[00m \e[1;32m\n\tNo SUID files existing\e[00m"
 			echo -e "\n"
@@ -169,12 +169,37 @@ file_system()
 		#extract any user history files that are accessible
 		userhistory=`ls -la ~/.*_history 2>/dev/null`
 		if [ "$userhistory" ]; then
-		  echo -e "[+] \e[1;4;37mHistory available:\e[00m \e[1;31m\n\tYES\e[00m" 
-		  echo -e "\n"
+		 	echo -e "[+] \e[1;4;37mHistory available:\e[00m \e[1;31m\n\tYES\e[00m" 
+		 	echo -e "\n"
 		else 
-		  echo -e "[+] \e[1;4;37mHistory available:\e[00m \e[1;32m\n\tNO\e[00m"
-		  echo -e "\n"
+		  	echo -e "[+] \e[1;4;37mHistory available:\e[00m \e[1;32m\n\tNO\e[00m"
+		  	echo -e "\n"
 		fi
+	}
+
+conf()
+	{
+		open_port=` netstat -tupln | grep -v p6`
+		if [ "$open_port" ]; then
+			echo -e "[+] \e[1;4;37mPort(s) open:\e[00m"
+			while read -r line; do
+				echo -e " \e[00;36m\t$line\e[00m" 
+			done <<< $open_port
+			echo -e "\n"
+		fi
+
+
+		#root login permitted with ssh
+		sshrootlogin=`grep "PermitRootLogin " /etc/ssh/sshd_config 2>/dev/null | grep -v "#" | awk '{print  $2}'`
+		if [ "$sshrootlogin" = "yes" ]; then
+		  	echo -e "[+] \e[1;4;37mRoot is allowed to login via SSH:\e[00m \e[1;31m\n\tYES\e[00m"
+		  	echo -e "\n" 
+		else 
+		   	echo -e "[+] \e[1;4;37mRoot is allowed to login via SSH:\e[00m \e[1;32m\n\tNO\e[00m"
+		fi
+	
+		#apache
+		#mysql
 	}
 
 exploit()
@@ -235,6 +260,7 @@ call_each()
 	{
 		header
 		system_info
+		conf
 		user_info
 		file_system
 		exploit
