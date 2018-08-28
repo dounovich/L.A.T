@@ -34,6 +34,14 @@ system_info()
 		else 
 			:
 		fi
+
+		echo -e "[+] \e[1;4;37mCheck Glibc vulnerability:\e[00m"
+		ghost=`ldd --version | grep ldd | awk -F ' ' '{print $5}' 2>/dev/null`
+		if (( `echo $ghost '<' 2.19 | bc` )); then
+			echo -e "\e[1;31m\tVulnerable to Ghost Exploit (Upgrade recommended):\n\t\tYour version : $ghost\e[00m\n\t\t\e[1;32mSafe version minimal : 2.19\e[00m\n"
+		else
+			echo -e "\e[1;32m\tNot vulnerable to Ghost Exploit\e[00m\n"
+		fi
 	}
 
 user_info()
@@ -232,7 +240,7 @@ conf()
 
 exploit()
 	{
-		echo -e "[+] \e[1;4;37mCheck shellshock vulnerability\e[00m"
+		echo -e "[+] \e[1;4;37mCheck shellshock vulnerability:\e[00m"
 		shelly=`env x='() { :;}; echo 1; exit;' bash -c 'echo 0' 2>/dev/null`
 		if [ $shelly = "1" ]; then
 			echo -e "\e[1;31m\tVulnerable to shellshock\e[00m\n"
@@ -240,7 +248,16 @@ exploit()
 			echo -e "\e[1;32m\tNot vulnerable to shellshock\e[00m\n"
 		fi
 
-		echo -e "[+] \e[1;4;37mCheck Dirty C0w vulnerability\e[00m"
+		echo -e "[+] \e[1;4;37mCheck Glibc vulnerability:\e[00m"
+		ghost=`ldd --version | grep ldd | awk -F ' ' '{print $5}' 2>/dev/null`
+		if [ "$ghost" -lt 2.19 ]; then
+			echo -e "\e[1;31m\tVulnerable to Ghost Exploit\e[00m\n"
+		else
+			echo -e "\e[1;32m\tNot vulnerable to Ghost Exploit\e[00m\n"
+		fi
+
+
+		echo -e "[+] \e[1;4;37mCheck Dirty C0w vulnerability:\e[00m"
 
 		if [[ $EUID -ne 0 ]]; then
 		   echo -e "This script must be run as root\n"
@@ -284,10 +301,10 @@ call_each()
 	{
 		header
 		system_info
-		user_info
-		file_system
-		conf
-		exploit
+		#user_info
+		#file_system
+		#conf
+		#exploit
 		footer
 	}
 
