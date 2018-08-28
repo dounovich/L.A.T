@@ -1,10 +1,9 @@
 #!/bin/bash
 
 # Help
-#		
-#		http://davemacaulay.com/easily-test-dirty-cow-cve-2016-5195-vulnerability/
-#		https://github.com/rebootuser/LinEnum/blob/master/LinEnum.sh
 #		https://www.networkworld.com/article/3143050/linux/linux-hardening-a-15-step-checklist-for-a-secure-linux-server.html
+#		https://github.com/rebootuser/LinEnum/blob/master/LinEnum.sh
+#		#http://davemacaulay.com/easily-test-dirty-cow-cve-2016-5195-vulnerability/
 
 header()
 	{
@@ -91,9 +90,9 @@ file_system()
 		readshadow=`ls -la /etc/shadow | grep -v "\-rw-------" 2>/dev/null`
 		echo -e "[+] \e[1;4;37mCheck shadow file:\e[00m"
 		if [ "$readshadow" ]; then
-		  	echo -e "\e[1;31m\tFile readable by users\e[00m\n" 
+		  	echo -e "\e[1;31m\tShadow file permissions doesn't respect best practice. (chmod 600 /etc/shadow) \e[00m\n" 
 		else 
-		 	echo -e "\e[1;32m\tNo hashes in this file\e[00m\n"
+		 	echo -e "\e[1;32m\tShadow file respect best practice\e[00m\n"
 		fi
 
 		#list of suid file
@@ -197,7 +196,7 @@ conf()
 			echo -e " \e[00;36m\tInformation not available\e[00m" 
 		fi
 
-		#root login permitted with ssh
+		#Check SSH configuration
 		sshrootlogin=`grep "PermitRootLogin " /etc/ssh/sshd_config 2>/dev/null | grep -v "#" | awk '{print  $2}'`
 		echo -e "[+] \e[1;4;37mRoot is allowed to login via SSH:\e[00m"
 		if [ "$sshrootlogin" = "yes" ]; then
@@ -205,6 +204,31 @@ conf()
 		else 
 		   	echo -e "\e[1;32m\tRoot login has been disabled\e[00m\n"
 		fi
+
+		sshdefaultport=`cat /etc/ssh/sshd_config  | grep "^Port 22" | awk '{print  $2}'`
+		echo -e "[+] \e[1;4;37mSSH default port:\e[00m"
+		if [ "$sshdefaultport" = "22" ]; then
+		  	echo -e "\e[1;31m\tSSH use default port configuration => this configuration doesn't respect best practice\e[00m\n"
+		else 
+		   	echo -e "\e[1;32m\tSSH port is listening on $sshdefaultport\e[00m\n"
+		fi
+
+		sshfileperm=`ls -la /etc/ssh/sshd_config`
+		sshrights=`ls -la /etc/ssh/sshd_config | grep -v "\-rw-------" 2>/dev/null`
+		sshowner=`ls -la /etc/ssh/sshd_config | awk '{print  $3}'`
+		sshgrp=`ls -la /etc/ssh/sshd_config | awk '{print  $4}'`
+		echo -e "[+] \e[1;4;37mSSH permissions file:\e[00m"
+		if [ "$sshowner" != "root" ]; then
+		  	echo -e "\e[1;31m\tSSH configuration file must belong to root user => this doesn't respect best practice\e[00m\n"
+		elif [ "$sshgrp" != "root" ]; then
+		   	echo -e "\e[1;31m\tSSH configuration file must belong to root group => this doesn't respect best practice\e[00m\n"
+		elif [ "$sshrights" ]; then
+			echo -e "\e[1;31m\tSSH file permissions doesn't respect best practice. (chmod 600 /etc/ssh/sshd_config) \e[00m\n"
+		else
+			echo -e "\e[1;32m\tSSH file is well configured \e[00m\n"
+		fi
+
+
 	}
 
 exploit()
