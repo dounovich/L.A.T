@@ -239,8 +239,6 @@ exploit()
 		else
 			echo -e "\e[1;32m\tNot vulnerable to shellshock\e[00m\n"
 		fi
-		echo -e "\n"
-
 
 		echo -e "[+] \e[1;4;37mCheck Dirty C0w vulnerability\e[00m"
 
