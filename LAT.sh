@@ -66,13 +66,13 @@ user_info()
 			:
 		fi
 
-#		sudoers=`grep -v -e '^$' /etc/sudoers 2>/dev/null |grep -v "#" | sed 'N;s/\n/,/' 2>/dev/null`
-#		if [ "$sudoers" ]; then
-#		  echo -e "[-] Sudoers configuration (condensed):\n$sudoers"
-#		  echo -e "\n" 
-#		else 
-#		  :
-#		fi
+		sudoers=`grep -v -e '^$' /etc/sudoers 2>/dev/null |grep -v "#" | sed 'N;s/\n/,/' 2>/dev/null`
+		if [ "$sudoers" ]; then
+		  echo -e "[-] Sudoers configuration (condensed):\n$sudoers"
+		  echo -e "\n" 
+		else 
+		  :
+		fi
 		
 		
 	}
@@ -179,6 +179,32 @@ file_system()
 
 conf()
 	{
+		deprecated_encryption='MD5\|SHA1'
+		#password policy information as stored in /etc/login.defs
+		timestoragepwd=`grep "^PASS_MAX_DAYS" /etc/login.defs | awk -F ' ' '{print $2}' 2>/dev/null`
+		encryptionpwd=`grep "^ENCRYPT_METHOD" /etc/login.defs | awk -F ' ' '{print $2}' 2>/dev/null`
+		if [ "$timestoragepwd" ]; then
+			echo -e "\e[1;4;37m[+] Exiration password:\e[00m"
+			if [ $timestoragepwd -gt 90 ]; then
+		  		echo -e "\e[1;31m\t$timestoragepwd => This configuration doesn't respect best pratices\e[00m\n"
+		  	else
+		  		echo -e "\e[1;32m\t$timestoragepwd\e[00m\n"
+		  	fi
+		else
+			echo -e "\e[00;36m\tInfo not available\e[00m\n"
+		fi
+
+		if [ "$encryptionpwd" ]; then
+			echo -e "\e[1;4;37m[+] Encryption used:\e[00m"
+			if [ $(echo $deprecated_encryption | grep $encryptionpwd) ]; then
+				echo -e "\e[1;31m\t$encryptionpwd => This encryption is deprecated\n"
+			else
+				echo -e "\e[1;32m\t$encryptionpwd\e[00m\n"
+			fi
+		else 
+		  	echo -e "\e[00;36m\tInfo not available\e[00m\n"
+		fi
+
 		open_port=` netstat -tupln | grep -v p6`
 		if [ "$open_port" ]; then
 			echo -e "[+] \e[1;4;37mPort(s) open:\e[00m"
@@ -262,7 +288,7 @@ call_each()
 		system_info
 		conf
 		user_info
-		file_system
+		0file_system
 		exploit
 		footer
 	}
