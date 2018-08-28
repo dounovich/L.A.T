@@ -2,6 +2,8 @@
 
 Linux Auditing Tool
 
+Script for hardening your Linux servers
+
 # CHECK LIST
 
 Kernel information
