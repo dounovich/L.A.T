@@ -4,17 +4,13 @@
 #		https://github.com/rebootuser/LinEnum/blob/master/LinEnum.sh
 #		#http://davemacaulay.com/easily-test-dirty-cow-cve-2016-5195-vulnerability/
 
-usage () 
-	{ 
-		echo "."
-	}
 header()
 	{
 		echo -e "\n\e[00;31m#########################################################\e[00m" 
 		echo -e "\e[00;31m#####\e[00m" "\e[00;33m            LINUX AUDITING TOOL              \e[00m" "\e[00;31m#####\e[00m"
 		echo -e "\e[00;31m#########################################################\e[00m"
 		date=`date`
-		echo -e "\nScan started at: $date\n" 
+		echo -e "\n\e[1;33mScan started at: $date\e[00m\n" 
 		
 	}
 
@@ -68,71 +64,55 @@ user_info()
 
 		sudoers=`grep -v -e '^$' /etc/sudoers 2>/dev/null |grep -v "#" | sed 'N;s/\n/,/' 2>/dev/null`
 		if [ "$sudoers" ]; then
-		  echo -e "[-] Sudoers configuration (condensed):\n$sudoers"
-		  echo -e "\n" 
+		  	echo -e "[+] \e[1;4;37mSuper user account(s):\e[00m"
+			while read -r line; do
+				echo -e " \e[00;36m\t$line\e[00m" 
+			done <<< $sudoers
+		 	echo -e "\n"
 		else 
 		  :
-		fi
-		
-		
+		fi		
 	}
 
 file_system()
 	{
 		#checks to see if any hashes are stored in /etc/passwd (depreciated  *nix storage method)
 		hashesinpasswd=`grep -v '^[^:]*:[x]' /etc/passwd 2>/dev/null`
+		echo -e "[+] \e[1;4;37mCheck passwd file:\e[00m"
 		if [ "$hashesinpasswd" ]; then
-		  	echo -e "[+] \e[1;4;37mCheck passwd file:\e[00m \e[1;31m\n\tHashes stored in this file\e[00m" 
-		  	echo -e "\n"
+		  	echo -e "\e[1;31m\tHashes stored in this file\e[00m\n" 
 		else 
-			echo -e "[+] \e[1;4;37mCheck passwd file:\e[00m \e[1;32m\n\tNo hashes in this file\e[00m"
-			echo -e "\n"
+			echo -e "\e[1;32m\tNo hashes in this file\e[00m\n"
 		fi
 
 		#checks to see if the shadow file can be read by users
 		readshadow=`ls -la /etc/shadow | grep -v "\-rw-------" 2>/dev/null`
+		echo -e "[+] \e[1;4;37mCheck shadow file:\e[00m"
 		if [ "$readshadow" ]; then
-		  	echo -e "[+] \e[1;4;37mCheck shadow file:\e[00m \e[1;31m\n\tFile readable by users\e[00m" 
-		  	echo -e "\n"
+		  	echo -e "\e[1;31m\tFile readable by users\e[00m\n" 
 		else 
-		 	 echo -e "[+] \e[1;4;37mCheck passwd file: \e[00m \e[1;32m\n\tNo hashes in this file\e[00m"
-		 	 echo -e "\n"
+		 	echo -e "\e[1;32m\tNo hashes in this file\e[00m\n"
 		fi
 
 		#list of suid file
 		#http://www.filepermissions.com/directory-permission/
 		binaries='nmap\|perl\|awk\|find\|bash\|sh\|man\|more\|less\|vi\|emacs\|vim\|nc\|netcat\|python\|ruby\|lua\|irb\|tar\|zip\|gdb\|pico\|scp\|git\|rvim\|script\|ash\|csh\|curl\|dash\|ed\|env\|expect\|ftp\|sftp\|node\|php\|rpm\|rpmquery\|socat\|strace\|taskset\|tclsh\|telnet\|tftp\|wget\|wish\|zsh\|ssh'
+		echo -e "[+] \e[1;4;37mSUID files:\e[00m"
 		suid=`find / -perm -4000 -type f -exec ls -la {} \; 2>/dev/null | grep -w $binaries 2>/dev/null`
 		if [ "$suid" ]; then
-			echo -e "[+] \e[1;4;37mSUID files:\e[00m"
 			while read -r line; do
 				echo -e " \e[00;36m\t$line\e[00m" 
 			done <<< $suid
 		  	echo -e "\n"			
 		else 
-			echo -e "[+] \e[1;4;37mSUID files: \e[00m \e[1;32m\n\tNo SUID files existing\e[00m"
-			echo -e "\n"
-		fi
-
-		#lists writable suid files
-		#http://www.filepermissions.com/directory-permission/
-		w-suid=`find / -perm -4007 -type f -exec ls -la {} 2>/dev/null \;`
-		if [ "$w-suid" ]; then
-			echo -e "[+] \e[1;4;37mWritable SUID files:\e[00m "   
-			while read -r line; do
-				echo -e " \e[00;36m\t$line\e[00m" 
-			done <<< $w-suid
-			echo -e "\n" 
-		else 
-			echo -e "[+] \e[1;4;37mWritable SUID files: \e[00m \e[1;32m\n\tNo writable SUID files existing\e[00m"
-			echo -e "\n"
+			echo -e "\e[1;32m\tNo SUID files existing\e[00m\n"
 		fi
 
 		#list of guid files
 		#http://www.filepermissions.com/directory-permission/
+		echo -e "[+] \e[1;4;37mGUID files:\e[00m" 
 		guid=`find / -perm -2000 -type f  -exec ls -la {} \; 2>/dev/null | grep -w $binaries 2>/dev/null`
 		if [ "$guid" ]; then
-			echo -e "[+] \e[1;4;37mGUID files:\e[00m" 
 			while read -r line; do
 				echo -e " \e[00;36m\t$line\e[00m" 
 			done <<< $guid
@@ -143,9 +123,9 @@ file_system()
 		fi
 
 		#list of interesting files
+		echo -e "[+] \e[1;4;37mInteresting files:\e[00m"
 		interestingfile=`find . \( -name "*.php" -o -name "*.bdd"  -o -name "*.sql" \) -exec ls -la {} \;`
 		if [ "$interestingfile" ]; then
-			echo -e "[+] \e[1;4;37mInteresting files:\e[00m"
 			while read -r line; do
 				echo -e " \e[00;36m\t$line\e[00m" 
 			done <<< $interestingfile
@@ -158,22 +138,21 @@ file_system()
 		#looking for credentials in /etc/fstab
 		fstab=`grep username /etc/fstab 2>/dev/null |awk '{sub(/.*\username=/,"");sub(/\,.*/,"")}1' 2>/dev/null| xargs -r echo username: 2>/dev/null; grep password /etc/fstab 2>/dev/null |awk '{sub(/.*\password=/,"");sub(/\,.*/,"")}1' 2>/dev/null| xargs -r echo password: 2>/dev/null; grep domain /etc/fstab 2>/dev/null |awk '{sub(/.*\domain=/,"");sub(/\,.*/,"")}1' 2>/dev/null| xargs -r echo domain: 2>/dev/null`
 		fstabcred=`grep cred /etc/fstab 2>/dev/null |awk '{sub(/.*\credentials=/,"");sub(/\,.*/,"")}1' 2>/dev/null | xargs -I{} sh -c 'ls -la {}; cat {}' 2>/dev/null`
+		echo -e "[+] \e[1;4;37mCheck FSTAB files:\e[00m"
 		if [ "$fstab" ] || [ "$fstabcred" ]; then
-		  	echo -e "[+] \e[1;4;37mCheck FSTAB files:\e[00m \e[1;31m\n\t Credentials found in FSTAB\e[00m"
-		  	echo -e "\n"
+		  	echo -e "\e[1;31m\tCredentials found in FSTAB\e[00m\n"
 		 else 
-		  	echo -e "[+] \e[1;4;37mCheck FSTAB files:\e[00m \e[1;32m\n\tNo credential in it\e[00m"
-		  	echo -e "\n"
+		  	echo -e "\e[1;32m\tNo credential in this file\e[00m\n"
+
 		fi
 
 		#extract any user history files that are accessible
 		userhistory=`ls -la ~/.*_history 2>/dev/null`
+		echo -e "[+] \e[1;4;37mHistory available:\e[00m"
 		if [ "$userhistory" ]; then
-		 	echo -e "[+] \e[1;4;37mHistory available:\e[00m \e[1;31m\n\tYES\e[00m" 
-		 	echo -e "\n"
+		 	echo -e "\e[1;31m\tHistory file existing\e[00m\n"
 		else 
-		  	echo -e "[+] \e[1;4;37mHistory available:\e[00m \e[1;32m\n\tNO\e[00m"
-		  	echo -e "\n"
+		  	echo -e "\e[1;32m\tHistory file not existing\e[00m\n"
 		fi
 	}
 
@@ -184,7 +163,7 @@ conf()
 		timestoragepwd=`grep "^PASS_MAX_DAYS" /etc/login.defs | awk -F ' ' '{print $2}' 2>/dev/null`
 		encryptionpwd=`grep "^ENCRYPT_METHOD" /etc/login.defs | awk -F ' ' '{print $2}' 2>/dev/null`
 		if [ "$timestoragepwd" ]; then
-			echo -e "\e[1;4;37m[+] Exiration password:\e[00m"
+			echo -e "[+] \e[1;4;37mExiration password:\e[00m"
 			if [ $timestoragepwd -gt 90 ]; then
 		  		echo -e "\e[1;31m\t$timestoragepwd => This configuration doesn't respect best pratices\e[00m\n"
 		  	else
@@ -195,7 +174,7 @@ conf()
 		fi
 
 		if [ "$encryptionpwd" ]; then
-			echo -e "\e[1;4;37m[+] Encryption used:\e[00m"
+			echo -e "[+] \e[1;4;37mEncryption used:\e[00m"
 			if [ $(echo $deprecated_encryption | grep $encryptionpwd) ]; then
 				echo -e "\e[1;31m\t$encryptionpwd => This encryption is deprecated\n"
 			else
@@ -212,20 +191,18 @@ conf()
 				echo -e " \e[00;36m\t$line\e[00m" 
 			done <<< $open_port
 			echo -e "\n"
+		else
+			echo -e " \e[00;36m\tInformation not available\e[00m" 
 		fi
-
 
 		#root login permitted with ssh
 		sshrootlogin=`grep "PermitRootLogin " /etc/ssh/sshd_config 2>/dev/null | grep -v "#" | awk '{print  $2}'`
+		echo -e "[+] \e[1;4;37mRoot is allowed to login via SSH:\e[00m"
 		if [ "$sshrootlogin" = "yes" ]; then
-		  	echo -e "[+] \e[1;4;37mRoot is allowed to login via SSH:\e[00m \e[1;31m\n\tYES\e[00m"
-		  	echo -e "\n" 
+		  	echo -e "\e[1;31m\tRoot login is enable => this configuration doesn't respect best practice\e[00m\n"
 		else 
-		   	echo -e "[+] \e[1;4;37mRoot is allowed to login via SSH:\e[00m \e[1;32m\n\tNO\e[00m"
+		   	echo -e "\e[1;32m\tRoot login has been disabled\e[00m\n"
 		fi
-	
-		#apache
-		#mysql
 	}
 
 exploit()
@@ -243,14 +220,14 @@ exploit()
 		echo -e "[+] \e[1;4;37mCheck Dirty C0w vulnerability\e[00m"
 
 		if [[ $EUID -ne 0 ]]; then
-		   echo -e "This script must be run as root"
+		   echo -e "This script must be run as root\n"
 		else
 		    # Download the exploit
 		    curl -s https://raw.githubusercontent.com/dirtycow/dirtycow.github.io/master/dirtyc0w.c > dirtyc0w.c
 
 		    # Check our file downloaded
 		    if [ ! -f dirtyc0w.c ]; then
-		        echo -e "Unable to download dirtyc0w.c from https://raw.githubusercontent.com/dirtycow/dirtycow.github.io/master/dirtyc0w.c"
+		        echo -e "Unable to download dirtyc0w.c from https://raw.githubusercontent.com/dirtycow/dirtycow.github.io/master/dirtyc0w.c\n"
 		    else
 		        # Create a new temporary test file to test with
 		        echo ORIGINAL_STRING > dirtycow_test
@@ -262,23 +239,21 @@ exploit()
 
 		        if grep -q EXPLOITABLE "dirtycow_test"
 		        then
-		            echo -e "\e[1;31m\tVulnerable to Dirty C0w\e[00m"
+		            echo -e "\e[1;31m\tVulnerable to Dirty C0w\e[00m\n"
 		        else
-		           	echo -e "\e[1;32m\tNot vulnerable to Dirty C0w\e[00m"
+		           	echo -e "\e[1;32m\tNot vulnerable to Dirty C0w\e[00m\n"
 		        fi
 
-		        # Clean up junk
+		        # Clean up
 		        rm -rf dirtycow_test dirtyc0w dirtyc0w.c
 		    fi
 		fi
-		echo -e "\n"
-
 	}
 
 footer()
 	{
 		date=`date`
-		echo -e "Scan finished at: $date" 
+		echo -e "\n\e[1;33mScan finished at: $date\e[00m\n"
 		echo -e "\n"
 	}
 
@@ -286,9 +261,9 @@ call_each()
 	{
 		header
 		system_info
-		conf
 		user_info
-		0file_system
+		file_system
+		conf
 		exploit
 		footer
 	}
