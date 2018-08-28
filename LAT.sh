@@ -1,8 +1,10 @@
 #!/bin/bash
 
 # Help
+#		
+#		http://davemacaulay.com/easily-test-dirty-cow-cve-2016-5195-vulnerability/
 #		https://github.com/rebootuser/LinEnum/blob/master/LinEnum.sh
-#		#http://davemacaulay.com/easily-test-dirty-cow-cve-2016-5195-vulnerability/
+#		https://www.networkworld.com/article/3143050/linux/linux-hardening-a-15-step-checklist-for-a-secure-linux-server.html
 
 header()
 	{
