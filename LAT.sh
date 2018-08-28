@@ -232,12 +232,12 @@ conf()
 
 exploit()
 	{
-		"[+] \e[1;4;37mCheck shellshock vulnerability\e[00m"
+		echo -e "[+] \e[1;4;37mCheck shellshock vulnerability\e[00m"
 		shelly=`env x='() { :;}; echo 1; exit;' bash -c 'echo 0' 2>/dev/null`
 		if [ $shelly = "1" ]; then
-			echo -e "\e[1;31m\n\tVulnerable to shellshock\e[00m"
+			echo -e "\e[1;31m\tVulnerable to shellshock\e[00m\n"
 		else
-			echo -e "\e[1;32m\n\tNot vulnerable to shellshock\e[00m"
+			echo -e "\e[1;32m\tNot vulnerable to shellshock\e[00m\n"
 		fi
 		echo -e "\n"
 
