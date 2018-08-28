@@ -213,7 +213,6 @@ conf()
 		   	echo -e "\e[1;32m\tSSH port is listening on $sshdefaultport\e[00m\n"
 		fi
 
-		sshfileperm=`ls -la /etc/ssh/sshd_config`
 		sshrights=`ls -la /etc/ssh/sshd_config | grep -v "\-rw-------" 2>/dev/null`
 		sshowner=`ls -la /etc/ssh/sshd_config | awk '{print  $3}'`
 		sshgrp=`ls -la /etc/ssh/sshd_config | awk '{print  $4}'`
