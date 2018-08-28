@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Inspiring from 
+# Help
 #		https://github.com/rebootuser/LinEnum/blob/master/LinEnum.sh
 #		#http://davemacaulay.com/easily-test-dirty-cow-cve-2016-5195-vulnerability/
 
