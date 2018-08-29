@@ -25,3 +25,5 @@ Port open
 Ssh hardening (default port, root login enable, file permissions)
 
 Exploit checking (Shellshock,Ghost,Dirtyc0w)
+
+Check security programs installed (TO IMPROVE !)
