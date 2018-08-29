@@ -10,7 +10,7 @@ header()
 		echo -e "\n\e[00;31m#########################################################\e[00m" 
 		echo -e "\e[00;31m#####\e[00m" "\e[00;33m            LINUX AUDITING TOOL              \e[00m" "\e[00;31m#####\e[00m"
 		echo -e "\e[00;31m#########################################################\e[00m"
-		date=`date`
+		date=`date>/dev/null`
 		echo -e "\n\e[1;33mScan started at: $date\e[00m\n" 
 		
 	}
@@ -159,8 +159,8 @@ file_system()
 
 conf()
 	{
-		deprecated_encryption='MD5\|SHA1'
 		#password policy information as stored in /etc/login.defs
+		deprecated_encryption='MD5\|SHA1'
 		timestoragepwd=`grep "^PASS_MAX_DAYS" /etc/login.defs | awk -F ' ' '{print $2}' 2>/dev/null`
 		encryptionpwd=`grep "^ENCRYPT_METHOD" /etc/login.defs | awk -F ' ' '{print $2}' 2>/dev/null`
 		if [ "$timestoragepwd" ]; then
@@ -290,6 +290,26 @@ exploit()
 		fi
 	}
 
+check_protection()
+	{
+		#Check if security programs are installed wether debian or centos/redhat
+		antivirus='selinux\|clamav\|ds_agent\|\|sophos\|fsecure\|rkhunter\|comodo\|f-prot\|chkrootkit\|bitdefender\|eset\|avast\|panda\|drweb\|kaspersky\|avg\|symantec\|escan\|gdata\|mcafee'
+		echo -e "[+] \e[1;4;37mCheck if security programs are installed\e[00m"
+		if [ -f /etc/redhat-release ]; then
+			detected=`rpm -qa | awk -F ' ' '{print $2}' | grep -w $antivirus | grep -v "++" | grep -v "Err" | sed  '/^$/d' 2>/dev/null`
+			while read -r line; do
+		  		echo -e "\e[1;32m\t$line\e[00m\n"
+		  	done <<< $detected
+		elif [ -f /etc/lsb-release ]; then
+		  	detected=`dpkg -l | awk -F ' ' '{print $2}' | grep -w $antivirus | grep -v "++" | grep -v "Err" | sed  '/^$/d' 2>/dev/null`
+		  	while read -r line; do
+		  		echo -e "\e[1;32m\t$line\e[00m"
+		  	done <<< $detected
+		else
+			echo -e "\e[1;31m\tNo security programs detected\e[00m\n"
+		fi
+	}
+
 footer()
 	{
 		date=`date`
@@ -305,6 +325,7 @@ call_each()
 		file_system
 		conf
 		exploit
+		check_protection
 		footer
 	}
 
