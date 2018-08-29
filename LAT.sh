@@ -3,14 +3,14 @@
 # Help
 #		https://www.networkworld.com/article/3143050/linux/linux-hardening-a-15-step-checklist-for-a-secure-linux-server.html
 #		https://github.com/rebootuser/LinEnum/blob/master/LinEnum.sh
-#		#http://davemacaulay.com/easily-test-dirty-cow-cve-2016-5195-vulnerability/
+#		http://davemacaulay.com/easily-test-dirty-cow-cve-2016-5195-vulnerability/
 
 header()
 	{
 		echo -e "\n\e[00;31m#########################################################\e[00m" 
 		echo -e "\e[00;31m#####\e[00m" "\e[00;33m            LINUX AUDITING TOOL              \e[00m" "\e[00;31m#####\e[00m"
 		echo -e "\e[00;31m#########################################################\e[00m"
-		date=`date>/dev/null`
+		date=`date`
 		echo -e "\n\e[1;33mScan started at: $date\e[00m\n" 
 		
 	}
@@ -65,7 +65,7 @@ user_info()
 
 		sudoers=`grep -v -e '^$' /etc/sudoers 2>/dev/null |grep -v "#" | sed 'N;s/\n/,/' 2>/dev/null`
 		if [ "$sudoers" ]; then
-		  	echo -e "[+] \e[1;4;37mSuper user account(s):\e[00m"
+		  	echo -e "[+] \e[1;4;37mSudo permissions(s):\e[00m"
 			while read -r line; do
 				echo -e " \e[00;36m\t$line\e[00m" 
 			done <<< $sudoers
@@ -247,15 +247,6 @@ exploit()
 		else
 			echo -e "\e[1;32m\tNot vulnerable to Ghost Exploit\e[00m\n"
 		fi
-
-		echo -e "[+] \e[1;4;37mCheck Glibc vulnerability:\e[00m"
-		ghost=`ldd --version | grep ldd | awk -F ' ' '{print $5}' 2>/dev/null`
-		if [ "$ghost" -lt 2.19 ]; then
-			echo -e "\e[1;31m\tVulnerable to Ghost Exploit\e[00m\n"
-		else
-			echo -e "\e[1;32m\tNot vulnerable to Ghost Exploit\e[00m\n"
-		fi
-
 
 		echo -e "[+] \e[1;4;37mCheck Dirty C0w vulnerability:\e[00m"
 
