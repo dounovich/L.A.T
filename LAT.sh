@@ -65,7 +65,7 @@ user_info()
 
 		sudoers=`grep -v -e '^$' /etc/sudoers 2>/dev/null |grep -v "#" | sed 'N;s/\n/,/' 2>/dev/null`
 		if [ "$sudoers" ]; then
-		  	echo -e "[+] \e[1;4;37mSudo permissions(s):\e[00m"
+		  	echo -e "[+] \e[1;4;37mSudo permissions:\e[00m"
 			while read -r line; do
 				echo -e " \e[00;36m\t$line\e[00m" 
 			done <<< $sudoers
