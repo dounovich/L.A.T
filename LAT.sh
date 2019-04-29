@@ -276,7 +276,7 @@ exploit()
 		        fi
 
 		        # Clean up
-		        rm -rf dirtycow_test dirtyc0w dirtyc0w.c
+		        rm -f dirtycow_test dirtyc0w dirtyc0w.c
 		    fi
 		fi
 	}
